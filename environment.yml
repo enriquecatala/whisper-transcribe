@@ -1,0 +1,11 @@
+name: whisper-transcribe
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - ffmpeg
+  - pip:
+      - faster-whisper
+      - numpy
