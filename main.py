@@ -6,7 +6,7 @@ def transcribe_audio(wav_path, language=None):
     # Initialize Whisper Model
     model = WhisperModel("base", device="cpu", compute_type="int8")
 
-    # Run transcription
+    # Run transcription with the generator
     segments, info = model.transcribe(wav_path, language=language, beam_size=5)
 
     # Print detected language
@@ -14,8 +14,13 @@ def transcribe_audio(wav_path, language=None):
 
     # Collect results with progress bar
     transcript = ""
-    for segment in tqdm(segments, desc="Transcribing", unit="segment"):
-        transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+    total_segments = 0  # Initially set total_segments to 0
+
+    with tqdm(desc="Transcribing", unit="segment") as pbar:
+        for segment in segments:
+            transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+            total_segments += 1
+            pbar.update(1)
     
     return transcript.strip()
 
