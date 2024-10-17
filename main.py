@@ -1,17 +1,6 @@
-"""
- Contact me:
-   e-mail:   enrique@clouddataninjas.com 
-   Linkedin: https://www.linkedin.com/in/enriquecatala/
-   Web:      https://www.clouddataninjas.com
-   Twitter:  https://twitter.com/enriquecatala
-   Support:  https://github.com/sponsors/enriquecatala
-   
-   Example usage:
-    python script.py audio.wav --model_size large-v2 --device gpu --compute_type float16
-    This will run the transcription with a larger model using GPU support and float16 precision.
-"""
 import argparse
 import wave
+import os
 from faster_whisper import WhisperModel
 from tqdm import tqdm
 
@@ -66,7 +55,10 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    # Transcribe and print the text
+    # Transcribe and write the text to a .txt file
     text = transcribe_audio(args.wav_path, args.language, args.model_size, args.device, args.compute_type)
-    print(f"Transcription:\n{text}")
-
+    txt_path = os.path.splitext(args.wav_path)[0] + ".txt"
+    with open(txt_path, "w", encoding="utf-8") as txt_file:
+        txt_file.write(text)
+    
+    print(f"Transcription written to {txt_path}")
