@@ -1,17 +1,21 @@
 import argparse
 from faster_whisper import WhisperModel
+from tqdm import tqdm
 
 def transcribe_audio(wav_path, language=None):
     # Initialize Whisper Model
     model = WhisperModel("base", device="cpu", compute_type="int8")
 
     # Run transcription
-    segments, info = model.transcribe(wav_path, language=language)
+    segments, info = model.transcribe(wav_path, language=language, beam_size=5)
 
-    # Collect results
+    # Print detected language
+    print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+
+    # Collect results with progress bar
     transcript = ""
-    for segment in segments:
-        transcript += f"{segment.text} "
+    for segment in tqdm(segments, desc="Transcribing", unit="segment"):
+        transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
     
     return transcript.strip()
 
@@ -23,4 +27,4 @@ if __name__ == "__main__":
 
     # Transcribe and print the text
     text = transcribe_audio(args.wav_path, args.language)
-    print(f"Transcription: {text}")
+    print(f"Transcription:\n{text}")

@@ -9,3 +9,4 @@ dependencies:
   - pip:
       - faster-whisper
       - numpy
+      - tqdm
