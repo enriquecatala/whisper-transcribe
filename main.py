@@ -14,12 +14,19 @@ def transcribe_audio(wav_path, language=None):
 
     # Collect results with progress bar
     transcript = ""
-    total_segments = 0  # Initially set total_segments to 0
+    total_segments = 0
+    total_duration = 0.0
 
     with tqdm(desc="Transcribing", unit="segment") as pbar:
         for segment in segments:
             transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
             total_segments += 1
+            segment_duration = segment.end - segment.start
+            total_duration += segment_duration
+
+            # Update progress bar description with average segment duration
+            avg_duration = total_duration / total_segments if total_segments > 0 else 0
+            pbar.set_postfix(avg_segment_duration=f"{avg_duration:.2f}s")
             pbar.update(1)
     
     return transcript.strip()
