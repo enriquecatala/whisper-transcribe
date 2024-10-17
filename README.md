@@ -1,6 +1,13 @@
 # whisper-transcribe
 FastWhisper Audio-to-Text: Efficient Transcription of .wav Files Using FastWhisper" A command-line tool for transcribing .wav files to text quickly and accurately using the FastWhisper library. Includes optional language detection and GPU acceleration support.
 
+# Transcribe
+
+```bash
+python main.py audio/audio.wav  # this will automatically detect the language
+python main.py audio/audio.wav --language en
+```
+
 # Export audio from video
 
 ```bash
