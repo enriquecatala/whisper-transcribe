@@ -12,7 +12,7 @@ def get_wav_duration(wav_path):
         duration = frames / float(rate)
     return round(duration)
 
-def transcribe_audio(wav_path, language=None, model_size="base", device="cpu", compute_type="int8"):
+def transcribe_audio(wav_path, language=None, model_size="base", device="cpu", compute_type="int8", include_segments_start_end=False):
     # Initialize Whisper Model
     model = WhisperModel(model_size, device=device, compute_type=compute_type)
 
@@ -32,7 +32,10 @@ def transcribe_audio(wav_path, language=None, model_size="base", device="cpu", c
 
     with tqdm(desc="Transcribing", unit="segment", total=round(wav_duration)) as pbar:
         for segment in segments:
-            transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+            if include_segments_start_end:
+                transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+            else:
+                transcript += f"{segment.text}\n"
             total_segments += 1
             segment_duration = segment.end - segment.start
             total_duration += segment_duration
@@ -52,11 +55,13 @@ if __name__ == "__main__":
     parser.add_argument("--model_size", type=str, help="Model size to use (default: base). Example: large-v2", default="base")
     parser.add_argument("--device", type=str, help="Device to use for inference (default: cpu). Example: gpu", default="cpu")
     parser.add_argument("--compute_type", type=str, help="Compute type to use (default: int8). Example: float16", default="int8")
+    parser.add_argument("--include_segments_start_end", type=bool, help="Include segments start-end in the output", default=False)
+
     
     args = parser.parse_args()
 
     # Transcribe and write the text to a .txt file
-    text = transcribe_audio(args.wav_path, args.language, args.model_size, args.device, args.compute_type)
+    text = transcribe_audio(args.wav_path, args.language, args.model_size, args.device, args.compute_type, args.include_segments_start_end)
     txt_path = os.path.splitext(args.wav_path)[0] + ".txt"
     with open(txt_path, "w", encoding="utf-8") as txt_file:
         txt_file.write(text)
