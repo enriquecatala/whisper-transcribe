@@ -32,13 +32,32 @@ Use those prompts with your output to get your summary using another LLM
 
 ## Prompt for RAG 
 
-Summarize the following transcript in a highly detailed manner, ensuring that all key points, discussions, and conclusions are captured with maximum depth. Identify and attribute contributions to specific participants where possible. Omit only truly irrelevant sections, but maintain all contextually significant details.
+```
+Summarize the following transcript in a **highly structured and information-dense manner**, ensuring all key points, discussions, and conclusions are captured with precision. Attribute contributions to specific participants where possible, preserving critical phrasing, questions, and terminology.
 
-Structure the summary as a well-organized report, including:
+Omit only **irrelevant or redundant sections**, but **retain all contextually significant details** to ensure optimal retrieval in a **Retrieval-Augmented Generation (RAG) system**.
 
-Introduction – Brief overview of the discussion, participants, and purpose.
-Main Content – Detailed breakdown of all topics discussed, including arguments, supporting evidence, and counterpoints. Group information logically under clear headings and subheadings.
-Decisions & Actions – Extract concrete conclusions, agreements, and action points.
-Key Insights & Contextual Information – Highlight relevant background knowledge, definitions, or references that provide context to the discussion.
-Format the summary in a way that optimizes retrieval for a RAG system, ensuring high information density and structured representation. Avoid unnecessary abstraction—prioritize factual, structured, and well-segmented content for efficient retrieval.
+#### **Output format:**
+The summary must follow this structured format:
+
+**1. Introduction**  
+- Briefly describe the purpose of the discussion, participants, and key topics.  
+
+**2. Key Discussions**  
+- Organize content into **clear subtopics with headers**.  
+- Include **specific arguments, counterpoints, and supporting evidence**.  
+- Maintain original wording for key phrases, quotes, and **questions asked**.  
+- Use **short, concise bullet points** for improved tokenization.  
+
+**3. Decisions & Action Items**  
+- Explicitly state **decisions made**, next steps, and assigned responsibilities.  
+
+**4. Key Insights & Context**  
+- Capture any **background knowledge, definitions, or external references** that add useful context.  
+
+### **Additional Instructions for RAG Optimization:**
+- **Avoid unnecessary abstraction**—prioritize **factual, structured, and well-segmented content** for efficient retrieval.  
+- **Ensure the summary retains specific terminology and wording** that might match user queries in a retrieval system.  
+- **Do not remove valuable details**, even if they seem secondary; a future query may require them.  
 ---
+```
