@@ -29,7 +29,7 @@ find . -type f -iname "*.mp4" -print0 | while IFS= read -r -d '' relpath; do
     # Full path for ffmpeg
     absolute_path="$input_folder/$relpath"
     # Output file
-    output_file="$output_folder/${base}-audio.wav"
+    output_file="$output_folder/${base}.wav"
 
     echo "Converting: $absolute_path -> $output_file"
     ffmpeg -i "$absolute_path" -vn -acodec pcm_s16le -ar 44100 -ac 2 "$output_file"
