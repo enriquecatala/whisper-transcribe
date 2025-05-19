@@ -4,6 +4,7 @@ FastWhisper Audio-to-Text: Efficient Transcription of .wav Files Using FastWhisp
 # Transcribe
 
 ```bash
+conda activate whisper-transcribe
 python main.py audio/audio.wav  # this will automatically detect the language
 python main.py audio/audio.wav --language en
 ```
@@ -11,6 +12,9 @@ python main.py audio/audio.wav --language en
 # Export audio from video
 
 ```bash
+# batch
+./convert.sh /path/to/input ./audio/
+# manual
 ffmpeg -i video.mp4 -vn -acodec pcm_s16le -ar 44100 -ac 2 audio/audio.wav
 ffmpeg -i video.mp4 -vn -acodec aac -ar 44100 -ac 2 audio/audio.m4a
 

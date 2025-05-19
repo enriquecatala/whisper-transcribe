@@ -18,7 +18,8 @@ mkdir -p "$output_folder"
 cd "$input_folder" || exit 1
 
 # Find all MP4 files, ignoring case, returning paths relative to the current dir
-find . -type f -iname "*.mp4" -print0 | while IFS= read -r -d '' relpath; do
+#find . -type f -iname "*.m4a" -print0 | while IFS= read -r -d '' relpath; do
+find . -type f \( -iname "*.mp4" -o -iname "*.m4a" \) -print0 | while IFS= read -r -d '' relpath; do
     # Remove leading ./ if present
     relpath="${relpath#./}"
     # Strip extension
