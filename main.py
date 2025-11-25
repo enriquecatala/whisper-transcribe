@@ -9,38 +9,38 @@ def get_wav_duration(wav_path):
         frames = wav_file.getnframes()
         rate = wav_file.getframerate()
         duration = frames / float(rate)
-    return round(duration)
+    return duration
 
-def transcribe_audio(wav_path, language=None, model_size="base", device="cpu", compute_type="int8", include_segments_start_end=False):
-    model = WhisperModel(model_size, device=device, compute_type=compute_type)
+def transcribe_audio(model, wav_path, language=None, include_segments_start_end=False, vad_filter=True):
     wav_duration = get_wav_duration(wav_path)
-    segments, info = model.transcribe(wav_path, language=language, beam_size=5)
+    segments, info = model.transcribe(wav_path, language=language, beam_size=5, vad_filter=vad_filter)
     print("Detected language '%s' with probability %.2f" % (info.language, info.language_probability))
     transcript = ""
     total_segments = 0
     total_duration = 0.0
 
-    with tqdm(desc="Transcribing", unit="segment", total=round(wav_duration)) as pbar:
+    with tqdm(total=wav_duration, unit="s", desc="Transcribing") as pbar:
         for segment in segments:
             if include_segments_start_end:
-                transcript += f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}\n"
+                line = f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}"
             else:
-                transcript += f"{segment.text}\n"
-            total_segments += 1
-            segment_duration = segment.end - segment.start
-            total_duration += segment_duration
-            avg_duration = total_duration / total_segments if total_segments > 0 else 0
-            estimated_time_left = (wav_duration - total_duration) / avg_duration if avg_duration > 0 else 0
-            pbar.set_postfix(est_time_left=f"{estimated_time_left:.2f}s")
-            pbar.update(round(segment_duration, 2))
+                line = f"{segment.text}"
+            
+            transcript += line + "\n"
+            tqdm.write(line)
+            
+            # Update progress bar to match the end of the current segment
+            # This handles potential silence gaps correctly by jumping to the segment end
+            pbar.update(segment.end - pbar.n)
     
     return transcript.strip()
 
-def process_directory(directory, language, model_size, device, compute_type, include_segments_start_end):
+def process_directory(model, directory, language, include_segments_start_end, vad_filter):
     for filename in os.listdir(directory):
         if filename.endswith(".wav"):
             wav_path = os.path.join(directory, filename)
-            text = transcribe_audio(wav_path, language, model_size, device, compute_type, include_segments_start_end)
+            print(f"Processing file: {filename}")
+            text = transcribe_audio(model, wav_path, language, include_segments_start_end, vad_filter)
             txt_path = os.path.splitext(wav_path)[0] + ".txt"
             with open(txt_path, "w", encoding="utf-8") as txt_file:
                 txt_file.write(text)
@@ -54,13 +54,23 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, help="Device to use for inference (default: cpu). Example: gpu", default="cpu")
     parser.add_argument("--compute_type", type=str, help="Compute type to use (default: int8). Example: float16", default="int8")
     parser.add_argument("--include_segments_start_end", type=bool, help="Include segments start-end in the output", default=False)
+    parser.add_argument("--cpu_threads", type=int, help="Number of threads to use for CPU inference (default: 4)", default=4)
+    parser.add_argument("--vad_filter", type=bool, help="Enable VAD filter to skip silence (default: True)", default=True)
     
     args = parser.parse_args()
     
+    print(f"Loading model '{args.model_size}' on {args.device} with {args.compute_type} precision...")
+    model = WhisperModel(
+        args.model_size, 
+        device=args.device, 
+        compute_type=args.compute_type, 
+        cpu_threads=args.cpu_threads
+    )
+    
     if os.path.isdir(args.path):
-        process_directory(args.path, args.language, args.model_size, args.device, args.compute_type, args.include_segments_start_end)
+        process_directory(model, args.path, args.language, args.include_segments_start_end, args.vad_filter)
     else:
-        text = transcribe_audio(args.path, args.language, args.model_size, args.device, args.compute_type, args.include_segments_start_end)
+        text = transcribe_audio(model, args.path, args.language, args.include_segments_start_end, args.vad_filter)
         txt_path = os.path.splitext(args.path)[0] + ".txt"
         with open(txt_path, "w", encoding="utf-8") as txt_file:
             txt_file.write(text)

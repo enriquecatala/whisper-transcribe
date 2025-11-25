@@ -7,6 +7,8 @@ FastWhisper Audio-to-Text: Efficient Transcription of .wav Files Using FastWhisp
 conda activate whisper-transcribe
 python main.py audio/audio.wav  # this will automatically detect the language
 python main.py audio/audio.wav --language en
+# Performance options
+python main.py audio/audio.wav --cpu_threads 8 --vad_filter True
 ```
 
 # Export audio from video
